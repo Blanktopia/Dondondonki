@@ -4,21 +4,20 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
-    id("net.minecrell.plugin-yml.bukkit")
-    id("com.github.johnrengelman.shadow")
+    kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.10"
+    id("net.minecrell.plugin-yml.bukkit") version "0.6.0"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 group = "me.weiwen.dondondonki"
 version = "1.0.0"
 
 repositories {
-    jcenter()
+    mavenLocal()
     mavenCentral()
 
-    maven { url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/") }
-    maven { url = uri("https://papermc.io/repo/repository/maven-public") }
+    maven("https://repo.purpurmc.org/snapshots")
     maven { url = uri("https://oss.sonatype.org/content/repositories/snapshots/") }
 
     // bStats
@@ -28,7 +27,7 @@ repositories {
     maven { url = uri("https://repo.minebench.de/") }
 
     // EssentialsX
-    maven { url = uri("https://repo.essentialsx.net/releases/") }
+    maven { url = uri("https://repo.essentialsx.net/snapshots/") }
 
     // GriefPrevention
     maven { url = uri("https://jitpack.io") }
@@ -43,35 +42,34 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.5.0"))
+    compileOnly(kotlin("stdlib"))
 
     // Deserialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-    implementation("com.charleskorn.kaml:kaml:0.33.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
+    implementation("com.charleskorn.kaml:kaml:0.72.0")
 
     // Paper
-    compileOnly("io.papermc.paper", "paper-api", "1.17.1-R0.1-SNAPSHOT")
-
-    // Spigot
-    compileOnly("org.spigotmc", "spigot", "1.17.1-R0.1-SNAPSHOT")
-
-    // bStats
-    implementation("org.bstats", "bstats-bukkit", "1.8")
-
-    // MineDown
-    implementation("de.themoep", "minedown", "1.7.0-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "1.21.4-R0.1-SNAPSHOT")
 
     // EssentialsX
-    compileOnly("net.ess3", "EssentialsX", "2.18.2")
+    compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
 
     // Moromoro
-    compileOnly("me.weiwen.moromoro", "Moromoro", "1.0.0-SNAPSHOT")
+    compileOnly("me.weiwen.moromoro", "Moromoro", "1.2.0-SNAPSHOT")
 
     // ProtocolLib
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "4.7.0-SNAPSHOT")
+    compileOnly("com.comphenix.protocol", "ProtocolLib", "5.1.0")
 
     // GriefPrevention
-    compileOnly("com.github.TechFortress:GriefPrevention:16.7.1")
+    compileOnly("com.github.TechFortress:GriefPrevention:16.18.2")
+}
+
+configurations.all {
+    resolutionStrategy {
+        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT") {
+            select("org.purpurmc.purpur:purpur-api:1.21.4-R0.1-SNAPSHOT")
+        }
+    }
 }
 
 bukkit {
@@ -98,17 +96,4 @@ bukkit {
             permission = "dondondonki.command.shop"
         }
     }
-}
-
-tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
-    kotlinOptions.languageVersion = "1.5"
-    kotlinOptions.freeCompilerArgs = listOf(
-        "-Xopt-in=kotlin.RequiresOptIn",
-        "-Xuse-experimental=org.jetbrains.kotlinx.serialization.ExperimentalSerializationApi"
-    )
-}
-
-tasks.withType<ShadowJar> {
-    classifier = null
 }

@@ -2,20 +2,18 @@ package me.weiwen.dondondonki.managers
 
 import me.weiwen.dondondonki.Dondondonki
 import me.weiwen.dondondonki.extensions.blockBehind
-import me.weiwen.dondondonki.extensions.blockInFront
 import me.weiwen.dondondonki.extensions.isContainer
 import me.weiwen.dondondonki.extensions.isSign
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextDecoration
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
-import org.bukkit.block.Chest
 import org.bukkit.block.Sign
 import org.bukkit.block.Container
+import org.bukkit.block.sign.Side
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -114,17 +112,18 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         chestState.update()
 
         val signState = sign.state as? Sign ?: return
-        signState.line(0, Component.text("[Shop]").color(plugin.config.shopLine1Color))
-        signState.line(1, Component.text(description).color(plugin.config.shopLine2Color).decorate(TextDecoration.BOLD))
-        signState.line(2,
+        signState.isWaxed = true
+        val side = signState.getSide(Side.FRONT)
+        side.line(0, Component.text("[Shop]").color(plugin.config.shopLine1Color))
+        side.line(1, Component.text(description).color(plugin.config.shopLine2Color).decorate(TextDecoration.BOLD))
+        side.line(2,
             Component.text(
                 if (price != null) { "${price.amount} ${itemParser.name(price)}" } else { "FREE" }
             ).color(plugin.config.shopLine3Color)
         )
-        signState.line(3, Component.text(ownerName).color(plugin.config.shopLine4Color))
-        signState.color = plugin.config.shopGlowingColor
-        signState.isGlowingText = true
-        signState.isEditable = false
+        side.line(3, Component.text(ownerName).color(plugin.config.shopLine4Color))
+        side.color = plugin.config.shopGlowingColor
+        side.isGlowingText = true
         signState.update()
 
         // TODO: add to shop registry
@@ -181,13 +180,14 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         chestState.update()
 
         val signState = sign.state as? Sign ?: return
-        signState.line(0, Component.text("[Donation]").color(plugin.config.donationLine1Color))
-        signState.line(1, Component.text(lines[1]).color(plugin.config.donationLine2Color))
-        signState.line(2, Component.text(lines[2]).color(plugin.config.donationLine3Color))
-        signState.line(3, Component.text(ownerName).color(plugin.config.donationLine4Color))
-        signState.color = plugin.config.donationGlowingColor
-        signState.isGlowingText = true
-        signState.isEditable = false
+        signState.isWaxed = true
+        val side = signState.getSide(Side.FRONT)
+        side.line(0, Component.text("[Donation]").color(plugin.config.donationLine1Color))
+        side.line(1, Component.text(lines[1]).color(plugin.config.donationLine2Color))
+        side.line(2, Component.text(lines[2]).color(plugin.config.donationLine3Color))
+        side.line(3, Component.text(ownerName).color(plugin.config.donationLine4Color))
+        side.color = plugin.config.donationGlowingColor
+        side.isGlowingText = true
         signState.update()
 
         // TODO: add to donation registry
@@ -222,7 +222,7 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
             if (owner?.isEmpty() == true) {
                 owner = null
             }
-            val ownerName = PlainTextComponentSerializer.plainText().serialize(signState.line(3))
+            val ownerName = PlainTextComponentSerializer.plainText().serialize(signState.getSide(Side.FRONT).line(3))
 
 //            pdc.remove(NamespacedKey("blanktopiashop", "type"))
 //            pdc.remove(NamespacedKey("blanktopiashop", "owner"))
@@ -231,7 +231,7 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
 //            pdc.remove(NamespacedKey("blanktopiashop", "cost"))
 //            chestState.update()
 
-            val description = PlainTextComponentSerializer.plainText().serialize(signState.line(1))
+            val description = PlainTextComponentSerializer.plainText().serialize(signState.getSide(Side.FRONT).line(1))
             registerShop(sign, chest, description, price, owner?.let { UUID.fromString(it) }, ownerName)
 
         } else if (type == "mail") {
@@ -241,7 +241,7 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
             if (owner?.isEmpty() == true) {
                 owner = null
             }
-            val ownerName = PlainTextComponentSerializer.plainText().serialize(signState.line(3))
+            val ownerName = PlainTextComponentSerializer.plainText().serialize(signState.getSide(Side.FRONT).line(3))
 
 //            pdc.remove(NamespacedKey("blanktopiashop", "type"))
 //            pdc.remove(NamespacedKey("blanktopiashop", "owner"))

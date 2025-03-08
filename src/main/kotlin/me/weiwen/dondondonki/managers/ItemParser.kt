@@ -4,7 +4,8 @@ import com.earth2me.essentials.Essentials
 import me.weiwen.dondondonki.Dondondonki
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
-import me.weiwen.moromoro.managers.item
+import me.weiwen.moromoro.items.ItemManager
+import me.weiwen.moromoro.items.item
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -30,7 +31,7 @@ class ItemParser(val plugin: Dondondonki) {
 
     fun name(item: ItemStack): String {
         val name = if (moromoro != null && item.customItemKey != null) {
-            Moromoro.plugin.itemManager.templates[item.customItemKey]?.name?.value?.let {
+            ItemManager.templates[item.customItemKey]?.name?.value?.let {
                 ChatColor.stripColor(it)
             } ?: item.i18NDisplayName ?: item.type.toString()
         } else {
@@ -101,9 +102,8 @@ class ItemParser(val plugin: Dondondonki) {
     }
 
     private fun parseMoromoro(string: String): ItemStack? {
-        val itemManager = moromoro?.itemManager ?: return null
         val regex = Regex("[^a-zA-Z ]")
-        return itemManager.templates.firstNotNullOfOrNull { (key, template) ->
+        return ItemManager.templates.firstNotNullOfOrNull { (key, template) ->
             if (ChatColor.stripColor(template.name?.value)?.replace(regex, "")?.trim()?.lowercase()
                     ?.equals(string) == true
             ) {

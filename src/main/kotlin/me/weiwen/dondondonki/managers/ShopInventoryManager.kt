@@ -154,7 +154,7 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
 
             if (owner != null) {
                 inventory.setItem(event.slot, price)
-                logPurchase(player, UUID.fromString(owner), clickedItem, price)
+                logPurchase(player, UUID.fromString(owner), clickedItem, block.location, price)
             } else {
                 val price = if (price != null) { "${price.amount} ${itemParser.name(price)}" } else { "FREE" }
                 plugin.logger.log(
@@ -199,7 +199,7 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
             player.playSoundAt(Sound.BLOCK_NOTE_BLOCK_BELL, SoundCategory.PLAYERS, 1.0f, 0.81f)
 
             if (owner != null) {
-                logMail(player, UUID.fromString(owner), item)
+                logMail(player, UUID.fromString(owner), item, block.location)
             } else {
                 plugin.logger.log(
                     Level.INFO,
@@ -209,7 +209,7 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
         }
     }
 
-    private fun logPurchase(player: Player, uuid: UUID, clickedItem: ItemStack, price: ItemStack?) {
+    private fun logPurchase(player: Player, uuid: UUID, clickedItem: ItemStack, location: Location, price: ItemStack?) {
         val owner = Bukkit.getServer().getOfflinePlayer(uuid)
         val boughtItem = itemParser.name(clickedItem)
         val price = if (price != null) { "${price.amount} ${itemParser.name(price)}" } else { "FREE" }
@@ -219,19 +219,19 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
         val user = essentials.getUser(owner.uniqueId) ?: return
         plugin.logger.log(
             Level.INFO,
-            "${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} from ${owner.name} for ${price}${ChatColor.GOLD}."
+            "${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} from ${owner.name} for ${price}${ChatColor.GOLD} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ})."
         )
         if (!owner.isOnline || user.isAfk) {
-            user.addMail("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} for ${price}${ChatColor.GOLD}.")
+            user.addMail("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} for ${price}${ChatColor.GOLD} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ}).")
         } else {
             owner.player?.let {
-                it.sendMessage("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} for ${price}.${ChatColor.GOLD}.")
+                it.sendMessage("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${boughtItem}${ChatColor.GOLD} for ${price}.${ChatColor.GOLD} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ}).")
                 it.playSoundTo(Sound.BLOCK_NOTE_BLOCK_BELL, SoundCategory.PLAYERS, 1.0f, 0.81f)
             }
         }
     }
 
-    private fun logMail(player: Player, uuid: UUID, item: ItemStack) {
+    private fun logMail(player: Player, uuid: UUID, item: ItemStack, location: Location) {
         val owner = Bukkit.getServer().getOfflinePlayer(uuid)
         val price = "${item.amount} ${itemParser.name(item)}"
         player.sendMessage("${ChatColor.GOLD}You have sent ${price}${ChatColor.GOLD}")
@@ -240,13 +240,13 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
         val user = essentials.getUser(owner.uniqueId) ?: return
         plugin.logger.log(
             Level.INFO,
-            "${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent ${price}${ChatColor.GOLD} to ${owner.name}."
+            "${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent ${price}${ChatColor.GOLD} to ${owner.name} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ})."
         )
         if (!owner.isOnline || user.isAfk) {
-            user.addMail("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent you ${price}${ChatColor.GOLD}.")
+            user.addMail("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent you ${price}${ChatColor.GOLD} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ}).")
         } else {
             owner.player?.let {
-                it.sendMessage("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent you ${price}${ChatColor.GOLD}.")
+                it.sendMessage("${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has sent you ${price}${ChatColor.GOLD} (X: ${location.blockX}, Y: ${location.blockY}, Z: ${location.blockZ}).")
                 it.playSoundTo(Sound.BLOCK_NOTE_BLOCK_BELL, SoundCategory.PLAYERS, 1.0f, 0.81f)
             }
         }
