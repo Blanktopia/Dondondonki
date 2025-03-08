@@ -28,7 +28,17 @@ data class DondondonkiConfig(
     val shopLine3Color: TextColor = TextColor.color(0xff8a72),
     @SerialName("shop-line-4-color")
     val shopLine4Color: TextColor = TextColor.color(0xed4d2d),
-    val shopGlowingColor: DyeColor = DyeColor.BROWN,
+    val shopGlowingColor: DyeColor? = DyeColor.BROWN,
+
+    @SerialName("shop-out-of-stock-line-1-color")
+    val shopOutOfStockLine1Color: TextColor = TextColor.color(0x300217),
+    @SerialName("shop-out-of-stock-line-2-color")
+    val shopOutOfStockLine2Color: TextColor = TextColor.color(0x300217),
+    @SerialName("shop-out-of-stock-line-3-color")
+    val shopOutOfStockLine3Color: TextColor = TextColor.color(0x300217),
+    @SerialName("shop-out-of-stock-line-4-color")
+    val shopOutOfStockLine4Color: TextColor = TextColor.color(0x300217),
+    val shopOutOfStockGlowingColor: DyeColor? = null,
 
     @SerialName("donation-line-1-color")
     val donationLine1Color: TextColor = TextColor.color(0x2d89ed),
@@ -38,7 +48,7 @@ data class DondondonkiConfig(
     val donationLine3Color: TextColor = TextColor.color(0x72b6ff),
     @SerialName("donation-line-4-color")
     val donationLine4Color: TextColor = TextColor.color(0x2d89ed),
-    val donationGlowingColor: DyeColor = DyeColor.BLUE,
+    val donationGlowingColor: DyeColor? = DyeColor.BLUE,
 )
 
 fun parseConfig(plugin: JavaPlugin): DondondonkiConfig {

@@ -2,6 +2,7 @@ package me.weiwen.dondondonki.managers
 
 import me.weiwen.dondondonki.Dondondonki
 import me.weiwen.dondondonki.extensions.blockBehind
+import me.weiwen.dondondonki.extensions.blockInFront
 import me.weiwen.dondondonki.extensions.isContainer
 import me.weiwen.dondondonki.extensions.isSign
 import net.kyori.adventure.text.Component
@@ -11,6 +12,7 @@ import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
 import org.bukkit.block.Sign
 import org.bukkit.block.Container
 import org.bukkit.block.sign.Side
@@ -89,7 +91,9 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         }
         chestState.update()
 
-        registerShop(sign, chest, description, price, owner, ownerName)
+        plugin.server.scheduler.runTaskLater(plugin, { ->
+            registerShop(sign, chest, description, price, owner, ownerName)
+        }, 1)
 
         return true
     }
@@ -122,8 +126,13 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
             ).color(plugin.config.shopLine3Color)
         )
         side.line(3, Component.text(ownerName).color(plugin.config.shopLine4Color))
-        side.color = plugin.config.shopGlowingColor
-        side.isGlowingText = true
+        if (plugin.config.shopGlowingColor != null) {
+            side.color = plugin.config.shopGlowingColor
+            side.isGlowingText = true
+        } else {
+            side.isGlowingText = false
+        }
+        plugin.logger.info(side.lines.joinToString(" "))
         signState.update()
 
         // TODO: add to shop registry
@@ -164,7 +173,9 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
             }
         }
 
-        registerDonationBox(sign, chest, lines, owner, ownerName)
+        plugin.server.scheduler.runTaskLater(plugin, { ->
+            registerDonationBox(sign, chest, lines, owner, ownerName)
+        }, 1)
 
         return true
     }
@@ -186,11 +197,86 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         side.line(1, Component.text(lines[1]).color(plugin.config.donationLine2Color))
         side.line(2, Component.text(lines[2]).color(plugin.config.donationLine3Color))
         side.line(3, Component.text(ownerName).color(plugin.config.donationLine4Color))
-        side.color = plugin.config.donationGlowingColor
-        side.isGlowingText = true
+        if (plugin.config.donationGlowingColor != null) {
+            side.color = plugin.config.donationGlowingColor
+            side.isGlowingText = true
+        } else {
+            side.isGlowingText = false
+        }
         signState.update()
 
         // TODO: add to donation registry
+    }
+
+    fun updateOutOfStock(block: Block) {
+        var block = block
+        if (block.type.isSign) {
+            block = block.blockBehind ?: return
+        }
+        val chest = block.state as? Container ?: return
+        val container = chest.persistentDataContainer
+        val type = container.get(NamespacedKey(plugin.config.namespace, "type"), PersistentDataType.STRING) ?: return
+        if (type != "shop") return
+        val price = container.get(NamespacedKey(plugin.config.namespace, "price"), PersistentDataType.BYTE_ARRAY)?.let {
+            ItemStack.deserializeBytes(it)
+        }
+        if (chest.inventory.contents.all { it == null || price != null && itemParser.isSameItem(it, price) }) {
+            setOutOfStock(block)
+        } else {
+            setInStock(block)
+        }
+    }
+
+    fun setInStock(chest: Block) {
+        val signs = sequenceOf(
+            chest.getRelative(BlockFace.NORTH),
+            chest.getRelative(BlockFace.EAST),
+            chest.getRelative(BlockFace.SOUTH),
+            chest.getRelative(BlockFace.WEST)
+        ).filter { it.type.isSign }
+
+        for (sign in signs) {
+            val signState = sign.state as? Sign ?: return
+            signState.isWaxed = true
+            val side = signState.getSide(Side.FRONT)
+            side.line(0, Component.text("[Shop]").color(plugin.config.shopLine1Color))
+            side.line(1, side.line(1).color(plugin.config.shopLine2Color))
+            side.line(2, side.line(2).color(plugin.config.shopLine3Color))
+            side.line(3, side.line(3).color(plugin.config.shopLine4Color))
+            if (plugin.config.shopGlowingColor != null) {
+                side.color = plugin.config.shopGlowingColor
+                side.isGlowingText = true
+            } else {
+                side.isGlowingText = false
+            }
+            signState.update()
+        }
+    }
+
+    fun setOutOfStock(chest: Block) {
+        val signs = sequenceOf(
+            chest.getRelative(BlockFace.NORTH),
+            chest.getRelative(BlockFace.EAST),
+            chest.getRelative(BlockFace.SOUTH),
+            chest.getRelative(BlockFace.WEST)
+        ).filter { it.type.isSign }
+
+        for (sign in signs) {
+            val signState = sign.state as? Sign ?: return
+            signState.isWaxed = true
+            val side = signState.getSide(Side.FRONT)
+            side.line(0, Component.text("OUT OF STOCK").color(plugin.config.shopOutOfStockLine1Color))
+            side.line(1, side.line(1).color(plugin.config.shopOutOfStockLine2Color))
+            side.line(2, side.line(2).color(plugin.config.shopOutOfStockLine3Color))
+            side.line(3, side.line(3).color(plugin.config.shopOutOfStockLine4Color))
+            if (plugin.config.shopOutOfStockGlowingColor != null) {
+                side.color = plugin.config.shopOutOfStockGlowingColor
+                side.isGlowingText = true
+            } else {
+                side.isGlowingText = false
+            }
+            signState.update()
+        }
     }
 
     private fun migrateBlanktopiaShop(sign: Block, chest: Block) {
@@ -273,6 +359,7 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         val pdc = state.persistentDataContainer
 
         if (pdc.has(NamespacedKey(plugin.config.namespace, "type"), PersistentDataType.STRING)) {
+            updateOutOfStock(chest)
             player.openInventory(state.inventory)
         } else if (pdc.has(NamespacedKey("blanktopiashop", "type"), PersistentDataType.STRING)) {
             if (block.type.isSign) {
@@ -312,8 +399,10 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
 
     @EventHandler(ignoreCancelled = true)
     fun onBlockBreak(event: BlockBreakEvent) {
-        if (!event.block.type.isSign) return
-        val chest = event.block.blockBehind ?: return
+        var chest = event.block
+        if (chest.type.isSign) {
+            chest = chest.blockBehind ?: return
+        }
         val state = chest.state as? Container ?: return
         val container = state.persistentDataContainer
         val uuid = container.get(NamespacedKey(plugin.config.namespace, "owner"), PersistentDataType.STRING)
@@ -328,7 +417,7 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         container.remove(NamespacedKey(plugin.config.namespace, "owner"))
         container.remove(NamespacedKey(plugin.config.namespace, "price"))
 
-        state.customName = null
+        state.customName(null)
         state.update()
     }
 }

@@ -6,6 +6,8 @@ import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
 import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.item
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.minimessage.MiniMessage
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -32,7 +34,7 @@ class ItemParser(val plugin: Dondondonki) {
     fun name(item: ItemStack): String {
         val name = if (moromoro != null && item.customItemKey != null) {
             ItemManager.templates[item.customItemKey]?.name?.value?.let {
-                ChatColor.stripColor(it)
+                MiniMessage.miniMessage().stripTags(it)
             } ?: item.i18NDisplayName ?: item.type.toString()
         } else {
             item.i18NDisplayName ?: item.type.toString()

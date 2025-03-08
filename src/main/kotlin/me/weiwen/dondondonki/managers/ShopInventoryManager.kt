@@ -162,6 +162,10 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
                     "${ChatColor.GOLD}${player.displayName}${ChatColor.GOLD} has bought ${itemParser.name(clickedItem)}${ChatColor.GOLD} for $price${ChatColor.GOLD}."
                 )
             }
+
+            if (chest.inventory.contents.all { it == null || price != null && itemParser.isSameItem(it, price) }) {
+                plugin.shopSignManager.setOutOfStock(block)
+            }
         } else if (type == "donation") {
             val owner = container.get(NamespacedKey(plugin.config.namespace, "owner"), PersistentDataType.STRING) ?: return
             val player = event.whoClicked as? Player ?: return
@@ -207,6 +211,16 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
                 )
             }
         }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun onInventoryClose(event: InventoryCloseEvent) {
+        val block = (event.inventory.holder as? BlockInventoryHolder)?.block ?: return
+        val chest = block.state as? Container ?: return
+        val container = chest.persistentDataContainer
+        val type = container.get(NamespacedKey(plugin.config.namespace, "type"), PersistentDataType.STRING) ?: return
+        if (type != "shop") return
+        plugin.shopSignManager.updateOutOfStock(block)
     }
 
     private fun logPurchase(player: Player, uuid: UUID, clickedItem: ItemStack, location: Location, price: ItemStack?) {
