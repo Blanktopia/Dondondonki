@@ -17,6 +17,7 @@ import org.bukkit.block.Sign
 import org.bukkit.block.Container
 import org.bukkit.block.sign.Side
 import org.bukkit.entity.Player
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
@@ -359,11 +360,18 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         val pdc = state.persistentDataContainer
 
         if (pdc.has(NamespacedKey(plugin.config.namespace, "type"), PersistentDataType.STRING)) {
+            event.setUseInteractedBlock(Event.Result.DENY)
+            event.setUseItemInHand(Event.Result.DENY)
+
             updateOutOfStock(chest)
             player.openInventory(state.inventory)
         } else if (pdc.has(NamespacedKey("blanktopiashop", "type"), PersistentDataType.STRING)) {
+            event.setUseInteractedBlock(Event.Result.DENY)
+            event.setUseItemInHand(Event.Result.DENY)
+
             if (block.type.isSign) {
                 migrateBlanktopiaShop(block, chest)
+                player.openInventory(state.inventory)
             }
         }
     }
