@@ -4,6 +4,7 @@ import com.earth2me.essentials.Essentials
 import me.weiwen.dondondonki.Dondondonki
 import me.weiwen.dondondonki.extensions.*
 import me.weiwen.dondondonki.hooks.hasContainerTrust
+import me.weiwen.moromoro.Moromoro
 import org.bukkit.*
 import org.bukkit.block.Container
 import org.bukkit.entity.Player
@@ -125,6 +126,10 @@ class ShopInventoryManager(val plugin: Dondondonki, val itemParser: ItemParser) 
             }
 
             val clickedItem = inventory.getItem(event.slot) ?: return
+
+            if (itemParser.isDecorationItem(clickedItem)) {
+                return
+            }
 
             if (price != null) {
                 if (itemParser.isSameItem(clickedItem, price)) return

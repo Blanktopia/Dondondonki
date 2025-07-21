@@ -221,7 +221,9 @@ class ShopSignManager(val plugin: Dondondonki, val itemParser: ItemParser) : Lis
         val price = container.get(NamespacedKey(plugin.config.namespace, "price"), PersistentDataType.BYTE_ARRAY)?.let {
             ItemStack.deserializeBytes(it)
         }
-        if (chest.inventory.contents.all { it == null || price != null && itemParser.isSameItem(it, price) }) {
+        if (chest.inventory.contents.all {
+                it == null || itemParser.isDecorationItem(it) || price != null && itemParser.isSameItem(it, price)
+        }) {
             setOutOfStock(block)
         } else {
             setInStock(block)

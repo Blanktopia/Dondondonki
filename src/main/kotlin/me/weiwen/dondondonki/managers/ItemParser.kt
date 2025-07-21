@@ -1,6 +1,9 @@
 package me.weiwen.dondondonki.managers
 
 import com.earth2me.essentials.Essentials
+import io.papermc.paper.registry.RegistryKey
+import io.papermc.paper.registry.keys.tags.ItemTypeTagKeys
+import io.papermc.paper.registry.tag.TagKey
 import me.weiwen.dondondonki.Dondondonki
 import me.weiwen.moromoro.Moromoro
 import me.weiwen.moromoro.extensions.customItemKey
@@ -8,9 +11,7 @@ import me.weiwen.moromoro.items.ItemManager
 import me.weiwen.moromoro.items.item
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage
-import org.bukkit.ChatColor
-import org.bukkit.Material
-import org.bukkit.NamespacedKey
+import org.bukkit.*
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 
@@ -134,5 +135,12 @@ class ItemParser(val plugin: Dondondonki) {
             return false
         }
         return true
+    }
+
+    fun isDecorationItem(item: ItemStack): Boolean {
+        if (item.amount != 1) {
+            return false
+        }
+        return item.type.key() in Dondondonki.plugin.config.decorationItems
     }
 }

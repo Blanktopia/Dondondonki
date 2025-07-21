@@ -5,8 +5,10 @@ package me.weiwen.dondondonki
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.*
 import me.weiwen.dondondonki.serializers.TextColorSerializer
+import net.kyori.adventure.key.Key
 import net.kyori.adventure.text.format.TextColor
 import org.bukkit.DyeColor
+import org.bukkit.Material
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
 import java.util.logging.Level
@@ -49,6 +51,27 @@ data class DondondonkiConfig(
     @SerialName("donation-line-4-color")
     val donationLine4Color: TextColor = TextColor.color(0x2d89ed),
     val donationGlowingColor: DyeColor? = DyeColor.BLUE,
+
+    @SerialName("decoration-items")
+    val decorationItems: List<Key> = listOf(
+        Material.GLASS_PANE.key(),
+        Material.WHITE_STAINED_GLASS_PANE.key(),
+        Material.ORANGE_STAINED_GLASS_PANE.key(),
+        Material.MAGENTA_STAINED_GLASS_PANE.key(),
+        Material.LIGHT_BLUE_STAINED_GLASS_PANE.key(),
+        Material.YELLOW_STAINED_GLASS_PANE.key(),
+        Material.LIME_STAINED_GLASS_PANE.key(),
+        Material.PINK_STAINED_GLASS_PANE.key(),
+        Material.GRAY_STAINED_GLASS_PANE.key(),
+        Material.LIGHT_GRAY_STAINED_GLASS_PANE.key(),
+        Material.CYAN_STAINED_GLASS_PANE.key(),
+        Material.PURPLE_STAINED_GLASS_PANE.key(),
+        Material.BLUE_STAINED_GLASS_PANE.key(),
+        Material.BROWN_STAINED_GLASS_PANE.key(),
+        Material.GREEN_STAINED_GLASS_PANE.key(),
+        Material.RED_STAINED_GLASS_PANE.key(),
+        Material.BLACK_STAINED_GLASS_PANE.key(),
+    ),
 )
 
 fun parseConfig(plugin: JavaPlugin): DondondonkiConfig {
