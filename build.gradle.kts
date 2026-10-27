@@ -49,7 +49,7 @@ dependencies {
     implementation("com.charleskorn.kaml:kaml:0.104.0")
 
     // Paper
-    compileOnly("org.purpurmc.purpur", "purpur-api", "1.21.4-R0.1-SNAPSHOT")
+    compileOnly("org.purpurmc.purpur", "purpur-api", "26.3.build.2654-stable")
 
     // EssentialsX
     compileOnly("net.essentialsx", "EssentialsX", "2.21.0-SNAPSHOT")
@@ -66,8 +66,8 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:1.21.4-R0.1-SNAPSHOT") {
-            select("org.purpurmc.purpur:purpur-api:1.21.4-R0.1-SNAPSHOT")
+        capabilitiesResolution.withCapability("org.spigotmc:spigot-api:26.3.build.2654-stable") {
+            select("org.purpurmc.purpur:purpur-api:26.3.build.2654-stable")
         }
     }
 }
@@ -77,7 +77,7 @@ bukkit {
     name = "Dondondonki"
     version = "1.0.0"
     description = "HermitCraft-like chest shop system"
-    apiVersion = "1.16"
+    apiVersion = "26.3"
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
