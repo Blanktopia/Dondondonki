@@ -35,9 +35,6 @@ repositories {
     // Lib's Disguises
     maven { url = uri("https://repo.md-5.net/content/groups/public/") }
 
-    // ProtocolLib
-    maven { url = uri("https://repo.dmulloy2.net/repository/public/") }
-
     mavenLocal()
 }
 
@@ -56,9 +53,6 @@ dependencies {
 
     // Moromoro
     compileOnly("me.weiwen.moromoro", "Moromoro", "1.2.0-SNAPSHOT")
-
-    // ProtocolLib
-    compileOnly("com.comphenix.protocol", "ProtocolLib", "5.1.0")
 
     // GriefPrevention
     compileOnly("com.github.TechFortress:GriefPrevention:16.18.2")
@@ -81,7 +75,7 @@ bukkit {
     author = "Goh Wei Wen <goweiwen@gmail.com>"
     website = "weiwen.me"
 
-    depend = listOf("Essentials", "ProtocolLib")
+    depend = listOf("Essentials")
     softDepend = listOf("Moromoro", "GriefPrevention")
 
     commands {
